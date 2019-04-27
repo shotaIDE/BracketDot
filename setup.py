@@ -11,6 +11,9 @@ setup(
     packages=[PACKAGE_NAME],
     python_requires='>=3.6',
     entry_points={
-        'console_scripts': ['bracket-dot=bracketdot.command_line:main'],
+        'console_scripts': [
+            'bracket-dot=bracketdot.command_line:ios',
+            'difflint-android=bracketdot.command_line:android',
+        ],
     },
 )
