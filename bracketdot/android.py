@@ -1,26 +1,21 @@
 # coding: utf-8
 
-import json
 import os
 import subprocess
 import xml.etree.ElementTree as ElementTree
-from typing import NoReturn
-
-from .gitdiff import GitDiff
 
 DEFAULT_LINT_RESULTS_PATH = 'app/build/reports/lint-results.xml'
 
 
-def report(base_hash: str = None, all_mode: bool = False,
-           use_cache: bool = False) -> NoReturn:
-    ALL_MODE = all_mode
+def get_android_lint_reports(lines: str = None,
+                             use_cache: bool = False) -> dict:
+    ALL_MODE = lines is None
     USE_CACHE = use_cache
 
     if ALL_MODE:
-        results = {}
+        target_lines = {}
     else:
-        git_diff = GitDiff()
-        results = git_diff.get_diff_lines(base_hash=base_hash)
+        target_lines = lines
 
     if USE_CACHE:
         lint_report_file = DEFAULT_LINT_RESULTS_PATH
@@ -56,10 +51,10 @@ def report(base_hash: str = None, all_mode: bool = False,
         target_line = int(location.get('line'))
         target_column = int(location.get('column'))
 
-        if not ALL_MODE:
-            if (target_file_relative_path not in results.keys() or
-                    target_line not in results[target_file_relative_path]):
-                continue
+        if (not ALL_MODE and
+            (target_file_relative_path not in target_lines.keys() or
+                target_line not in target_lines[target_file_relative_path])):
+            continue
 
         message = issue.get('message')
         summary = issue.get('summary')
@@ -81,8 +76,4 @@ def report(base_hash: str = None, all_mode: bool = False,
 
     print(f'Found {len(issues)} issues.')
 
-    OUTPUT_JSON_FILE = f'{current_dir}{os.sep}gitdiff_report.json'
-    with open(OUTPUT_JSON_FILE, mode='w', encoding='utf-8') as f:
-        json.dump(issues, f, indent=4)
-
-    print(f'Successfully output in "{OUTPUT_JSON_FILE}""')
+    return issues
