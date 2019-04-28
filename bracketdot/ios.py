@@ -1,9 +1,12 @@
 # coding: utf-8
 
+import glob
 import os
 import re
 import subprocess
 from typing import NoReturn
+
+from spellchecker import SpellChecker
 
 
 def convert_bracket_to_dot(lines: dict) -> NoReturn:
@@ -91,5 +94,104 @@ def get_swift_lint_reports(lines: dict = None) -> list:
             'message': message,
             'tag': severity,
         })
+
+    return issues
+
+
+def get_ios_spell_check_reports(lines: dict = None) -> list:
+    DEFINITION_PATTERN = re.compile(
+        r'(let|var|func|class|enum|struct)(\s+)([a-zA-Z0-9_]+)')
+    VARIABLE_PATTERN = re.compile(
+        r'[a-zA-Z][a-z]*')
+
+    ALL_MODE = lines is None
+
+    if ALL_MODE:
+        target_lines = {}
+        swift_files = glob.glob('**/*.swift', recursive=True)
+        for swift_file in swift_files:
+            target_lines[swift_file] = []
+    else:
+        target_lines = lines
+
+    IGNORE_FILE = '.gitdiffignore'
+    ignore_list = []
+    if os.path.exists(IGNORE_FILE):
+        with open(IGNORE_FILE, mode='r', encoding='utf-8') as f:
+            ignore_list_raw = f.readlines()
+            ignore_list = [
+                word.replace('\n', '') for word in ignore_list_raw]
+
+    current_dir = os.getcwd()
+    spell = SpellChecker()
+    issues = []
+
+    for target_file, line_numbers in target_lines.items():
+        with open(file=target_file, mode='r', encoding='utf-8') as f:
+            original_code = f.readlines()
+
+        for i, line in enumerate(original_code):
+            if not ALL_MODE and i + 1 not in line_numbers:
+                continue
+
+            target_file_relative_path = target_file.replace(
+                current_dir, '')
+            target_line = i + 1
+
+            matched_list = DEFINITION_PATTERN.findall(line)
+            convert_list = []
+
+            for matched in matched_list:
+                definition_all = matched[2]
+
+                variable_matched_list_raw = VARIABLE_PATTERN.findall(
+                    definition_all)
+
+                variable_matched_list = [
+                    word
+                    for word in variable_matched_list_raw
+                    if word.lower() not in ignore_list]
+                if variable_matched_list is None:
+                    print(
+                        f'[ERROR] "{definition_all}" is '
+                        'not matched variable pattern.')
+
+                for original_word in variable_matched_list:
+                    misspelled = spell.unknown([original_word.lower()])
+                    if not misspelled:
+                        continue
+
+                    correct_word_raw = spell.correction(original_word)
+                    if (len(correct_word_raw) >= 2 and
+                            original_word[0].isupper()):
+                        correct_word = (
+                            correct_word_raw[0].upper() +
+                            correct_word_raw[1:-1])
+                    else:
+                        correct_word = correct_word_raw
+
+                    convert_list.append({
+                        'src': original_word,
+                        'dst': correct_word,
+                    })
+
+            if len(convert_list) == 0:
+                continue
+
+            replaced_def = definition_all
+            for convert in convert_list:
+                replaced_def = replaced_def.replace(
+                    convert['src'], convert['dst'])
+
+            message = (
+                f'In word \'{definition_all}\'. '
+                f'Did you mean \'{replaced_def}\' ?')
+
+            issues.append({
+                'path': target_file_relative_path,
+                'line': target_line,
+                'message': message,
+                'tag': 'Typo',
+            })
 
     return issues

@@ -7,7 +7,8 @@ from typing import NoReturn
 
 from .android import get_android_lint_reports
 from .gitdiff import GitDiff
-from .ios import convert_bracket_to_dot, get_swift_lint_reports
+from .ios import (convert_bracket_to_dot, get_ios_spell_check_reports,
+                  get_swift_lint_reports)
 
 
 def ios():
@@ -26,7 +27,10 @@ def ios():
 
     reports = []
 
-    # convert_bracket_to_dot(lines=target_lines)
+    convert_bracket_to_dot(lines=target_lines)
+
+    swift_spell_check_reports = get_ios_spell_check_reports(lines=target_lines)
+    reports.extend(swift_spell_check_reports)
 
     swift_lint_reports = get_swift_lint_reports(lines=target_lines)
     reports.extend(swift_lint_reports)
