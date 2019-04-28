@@ -10,6 +10,9 @@ setup(
     version=VERSION_NAME,
     packages=[PACKAGE_NAME],
     python_requires='>=3.6',
+    install_requires=[
+        'pyspellchecker>=0.4.0',
+    ],
     entry_points={
         'console_scripts': [
             'bracket-dot=bracketdot.command_line:ios',
