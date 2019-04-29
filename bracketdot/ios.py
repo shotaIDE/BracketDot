@@ -18,6 +18,17 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
         r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+([a-zA-Z_][a-zA-Z0-9_.]*)\]'
         r'(.*\s*)\Z')
 
+    BRACKET_SETTER_LINE = re.compile(
+        r'\A(.*)'
+        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
+        r'set([A-Z])([a-zA-Z0-9_.]*):([a-zA-Z_][a-zA-Z0-9_.]*)\]'
+        r'(.*\s*)\Z')
+
+    BRACKET_GETTER_LINE = re.compile(
+        r'\A(.*)'
+        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+get([A-Z])([a-zA-Z0-9_.]*)\]'
+        r'(.*\s*)\Z')
+
     for target_file, line_numbers in lines.items():
         with open(file=target_file, mode='r', encoding='utf-8') as f:
             original_code = f.readlines()
@@ -31,13 +42,36 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
                     continue
 
                 matched = REPLACABLE_BRACKET_LINE.match(line)
-                if not matched:
-                    continue
+                if matched:
+                    groups = matched.groups()
+                    replaced = (
+                        f'{groups[0]}'
+                        f'{groups[1]}.{groups[2]}'
+                        f'{groups[3]}')
+                    original_code[i] = replaced
+                    num_replaced_in_step += 1
 
-                groups = matched.groups()
-                replaced = f'{groups[0]}{groups[1]}.{groups[2]}{groups[3]}'
-                original_code[i] = replaced
-                num_replaced_in_step += 1
+                matched = BRACKET_SETTER_LINE.match(line)
+                if matched:
+                    groups = matched.groups()
+                    replaced = (
+                        f'{groups[0]}'
+                        f'{groups[1]}.{groups[2].lower()}{groups[3]}'
+                        f' = {groups[4]}'
+                        f'{groups[5]}')
+                    original_code[i] = replaced
+                    num_replaced_in_step += 1
+
+                matched = BRACKET_GETTER_LINE.match(line)
+                if matched:
+                    groups = matched.groups()
+                    replaced = (
+                        f'{groups[0]}'
+                        f'{groups[1]}.{groups[2].lower()}{groups[3]}'
+                        f'{groups[4]}')
+                    original_code[i] = replaced
+                    num_replaced_in_step += 1
+
             num_replaced += num_replaced_in_step
 
         if num_replaced > 0:
