@@ -75,7 +75,7 @@ def get_swift_lint_reports(lines: dict = None) -> list:
 
         target_file_absolute_path = matched.groups()[0]
         target_file_relative_path = target_file_absolute_path.replace(
-            current_dir, '')
+            current_dir, '')[1:]
         target_line = int(matched.groups()[1])
         target_column = int(matched.groups()[2])
 

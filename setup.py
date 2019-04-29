@@ -15,7 +15,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'bracket-dot=bracketdot.command_line:ios',
+            'bracket-dot=bracketdot.command_line:bracket_dot',
+            'difflint-swift=bracketdot.command_line:swift',
             'difflint-android=bracketdot.command_line:android',
         ],
     },
