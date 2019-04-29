@@ -32,7 +32,7 @@ class SvnDiff():
         diff_results_raw = result.decode('utf-8').split('\n')
         diff_results = [line.replace('\r', '') for line in diff_results_raw]
 
-        RE_ADD_FILE_LINE = re.compile(r'^\+\+\+ b/(.*)$')
+        RE_ADD_FILE_LINE = re.compile(r'^\+\+\+ (.*)$')
         BASE_NUMBER_LINE = re.compile(
             r'^@@ -[0-9]+(,[0-9]+)? \+([0-9]+)(,[0-9]+)? @@.*$')
         CODE_LINE = re.compile(r'^\+(.*)$')
