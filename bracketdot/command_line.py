@@ -67,6 +67,8 @@ def android():
         use_cache=arguments.cache)
     reports.extend(lint_reports)
 
+    _output_reports(reports)
+
 
 def _output_reports(reports: list) -> NoReturn:
     current_dir = os.getcwd()
