@@ -20,14 +20,15 @@ def get_android_lint_reports(lines: dict = None,
     if USE_CACHE:
         lint_report_file = DEFAULT_LINT_RESULTS_PATH
     else:
-        android_lint_cmd = '.\\gradlew lint'
+        android_lint_cmd = 'gradlew.bat lint'
         result = subprocess.check_output(android_lint_cmd.split())
         result_list = result.decode('utf-8').split('\n')
 
         for line in result_list:
             if not line.startswith('Wrote XML report to file:///'):
                 continue
-            lint_report_file_raw = line[:28]
+            lint_report_file_raw = line.replace(
+                'Wrote XML report to file:///', '').replace('\r', '')
             lint_report_file = lint_report_file_raw.replace('/', os.sep)
 
         if lint_report_file is None:
