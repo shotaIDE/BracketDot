@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ElementTree
 DEFAULT_LINT_RESULTS_PATH = 'app/build/reports/lint-results.xml'
 
 
-def get_android_lint_reports(lines: str = None,
+def get_android_lint_reports(lines: dict = None,
                              use_cache: bool = False) -> dict:
     ALL_MODE = lines is None
     USE_CACHE = use_cache
@@ -20,7 +20,7 @@ def get_android_lint_reports(lines: str = None,
     if USE_CACHE:
         lint_report_file = DEFAULT_LINT_RESULTS_PATH
     else:
-        android_lint_cmd = '.\\gradlew lint'
+        android_lint_cmd = '. .\\gradlew lint'
         result = subprocess.check_output(android_lint_cmd.split())
         result_list = result.decode('utf-8').split('\n')
 
@@ -48,8 +48,12 @@ def get_android_lint_reports(lines: str = None,
         target_file_absolute_path = location.get('file')
         target_file_relative_path = target_file_absolute_path.replace(
             current_dir, '')
-        target_line = int(location.get('line'))
-        target_column = int(location.get('column'))
+        target_line_raw = location.get('line')
+        target_column_raw = location.get('column')
+        if target_line_raw is None or target_column_raw is None:
+            continue
+        target_line = int(target_line_raw)
+        target_column = int(target_column_raw)
 
         if (not ALL_MODE and
             (target_file_relative_path not in target_lines.keys() or

@@ -9,6 +9,7 @@ from .android import get_android_lint_reports
 from .gitdiff import GitDiff
 from .ios import (convert_bracket_to_dot, get_ios_spell_check_reports,
                   get_swift_lint_reports)
+from .svndiff import SvnDiff
 
 
 def ios():
@@ -40,9 +41,10 @@ def ios():
 
 def android():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--base', type=str, default='')
+    parser.add_argument('--base', type=str, default=None)
     parser.add_argument('--all', action='store_true', default=False)
     parser.add_argument('--cache', action='store_true', default=False)
+    parser.add_argument('--svn', action='store_true', default=False)
     arguments = parser.parse_args()
 
     ALL_MODE = arguments.all
@@ -50,8 +52,13 @@ def android():
     if ALL_MODE:
         target_lines = None
     else:
-        git_diff = GitDiff()
-        target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
+        if arguments.svn:
+            svn_diff = SvnDiff()
+            target_lines = svn_diff.get_diff_lines(
+                base_rev=int(arguments.base))
+        else:
+            git_diff = GitDiff()
+            target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
 
     reports = []
 
