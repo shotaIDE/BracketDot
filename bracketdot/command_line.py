@@ -12,7 +12,24 @@ from .ios import (convert_bracket_to_dot, get_ios_spell_check_reports,
 from .svndiff import SvnDiff
 
 
-def ios():
+def bracket_dot():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--base', type=str, default='')
+    parser.add_argument('--all', action='store_true', default=False)
+    arguments = parser.parse_args()
+
+    ALL_MODE = arguments.all
+
+    if ALL_MODE:
+        target_lines = None
+    else:
+        git_diff = GitDiff()
+        target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
+
+    convert_bracket_to_dot(lines=target_lines)
+
+
+def swift():
     parser = argparse.ArgumentParser()
     parser.add_argument('--base', type=str, default='')
     parser.add_argument('--all', action='store_true', default=False)
@@ -27,8 +44,6 @@ def ios():
         target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
 
     reports = []
-
-    convert_bracket_to_dot(lines=target_lines)
 
     swift_spell_check_reports = get_ios_spell_check_reports(lines=target_lines)
     reports.extend(swift_spell_check_reports)
@@ -75,6 +90,6 @@ def _output_reports(reports: list) -> NoReturn:
     OUTPUT_JSON_FILE = f'{current_dir}{os.sep}gitdiff_report.json'
 
     with open(OUTPUT_JSON_FILE, mode='w', encoding='utf-8') as f:
-        json.dump(reports, f, indent=4)
+        json.dump(reports, f, indent=4, ensure_ascii=False)
 
     print(f'Successfully output in "{OUTPUT_JSON_FILE}""')
