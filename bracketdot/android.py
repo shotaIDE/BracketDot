@@ -20,7 +20,7 @@ def get_android_lint_reports(lines: dict = None,
     if USE_CACHE:
         lint_report_file = DEFAULT_LINT_RESULTS_PATH
     else:
-        android_lint_cmd = '. .\\gradlew lint'
+        android_lint_cmd = '.\\gradlew lint'
         result = subprocess.check_output(android_lint_cmd.split())
         result_list = result.decode('utf-8').split('\n')
 
@@ -47,7 +47,7 @@ def get_android_lint_reports(lines: dict = None,
         location = issue.find('location')
         target_file_absolute_path = location.get('file')
         target_file_relative_path = target_file_absolute_path.replace(
-            current_dir, '')
+            current_dir, '')[1:].replace(os.sep, '/')
         target_line_raw = location.get('line')
         target_column_raw = location.get('column')
         if target_line_raw is None or target_column_raw is None:
