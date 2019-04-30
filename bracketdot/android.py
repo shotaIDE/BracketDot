@@ -21,7 +21,10 @@ def get_android_lint_reports(lines: dict = None,
         lint_report_file = DEFAULT_LINT_RESULTS_PATH
     else:
         android_lint_cmd = 'gradlew.bat lint'
-        result = subprocess.check_output(android_lint_cmd.split())
+        result = subprocess.run(
+            android_lint_cmd.split(),
+            check=False,
+            capture_output=True).stdout
         result_list = result.decode('utf-8').split('\n')
 
         for line in result_list:
