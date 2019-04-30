@@ -11,10 +11,11 @@ class GitDiff():
 
     def get_diff_lines(self, base_hash: str = None) -> dict:
         if base_hash is None:
-            get_base_commit_cmd = 'git log --pretty=format:"%P"'
+            get_base_commit_cmd = 'git log --pretty=format:"%p"'
             result = subprocess.check_output(get_base_commit_cmd.split())
             commit_hash_raw_list = result.decode('utf-8').split('\n')
-            base_commit_hash = commit_hash_raw_list[0].replace('"', '')
+            last_commit_hash_raw = commit_hash_raw_list[0].replace('"', '')
+            base_commit_hash = last_commit_hash_raw.split()[0]
         else:
             base_commit_hash = base_hash
 
@@ -48,7 +49,8 @@ class GitDiff():
 
             matched = RE_ADD_FILE_LINE.match(line)
             if matched:
-                target_file = matched.groups()[0]
+                target_file_raw = matched.groups()[0]
+                target_file = target_file_raw.replace('\t', '')
                 results[target_file] = []
                 continue
 

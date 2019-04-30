@@ -14,7 +14,7 @@ from .svndiff import SvnDiff
 
 def bracket_dot():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--base', type=str, default='')
+    parser.add_argument('--base', type=str, default=None)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
@@ -31,7 +31,7 @@ def bracket_dot():
 
 def swift():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--base', type=str, default='')
+    parser.add_argument('--base', type=str, default=None)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
