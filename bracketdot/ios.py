@@ -29,6 +29,19 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
         r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+get([A-Z])([a-zA-Z0-9_.]*)\]'
         r'(.*\s*)\Z')
 
+    BRACKET_INDEX_GET_LINE = re.compile(
+        r'\A(.*)'
+        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
+        r'objectAtIndex:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
+        r'(.*\s*)\Z')
+
+    BRACKET_INDEX_SET_LINE = re.compile(
+        r'\A(.*)'
+        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
+        r'replaceObjectAtIndex:([a-zA-Z_][a-zA-Z0-9_.]*)'
+        r'withObject:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
+        r'(.*\s*)\Z')
+
     for target_file, line_numbers in lines.items():
         with open(file=target_file, mode='r', encoding='utf-8') as f:
             original_code = f.readlines()
@@ -68,6 +81,27 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
                     replaced = (
                         f'{groups[0]}'
                         f'{groups[1]}.{groups[2].lower()}{groups[3]}'
+                        f'{groups[4]}')
+                    original_code[i] = replaced
+                    num_replaced_in_step += 1
+
+                matched = BRACKET_INDEX_GET_LINE.match(line)
+                if matched:
+                    groups = matched.groups()
+                    replaced = (
+                        f'{groups[0]}'
+                        f'{groups[1]}[{groups[2]}]'
+                        f'{groups[3]}')
+                    original_code[i] = replaced
+                    num_replaced_in_step += 1
+
+                matched = BRACKET_INDEX_SET_LINE.match(line)
+                if matched:
+                    groups = matched.groups()
+                    replaced = (
+                        f'{groups[0]}'
+                        f'{groups[1]}[{groups[2]}]'
+                        f' = {groups[3]}'
                         f'{groups[4]}')
                     original_code[i] = replaced
                     num_replaced_in_step += 1
