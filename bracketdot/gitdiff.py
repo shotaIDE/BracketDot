@@ -9,7 +9,10 @@ class GitDiff():
     def __init__(self):
         pass
 
-    def get_diff_lines(self, base_hash: str = None) -> dict:
+    def get_diff_lines(
+        self,
+        base_hash: str = None,
+        pickup_whitespace_lines: bool = False) -> dict:
         if base_hash is None:
             get_base_commit_cmd = 'git log --pretty=format:"%p"'
             result = subprocess.check_output(get_base_commit_cmd.split())
@@ -27,7 +30,9 @@ class GitDiff():
 
         get_diff_cmd = (
             'git --no-pager diff '
-            f'{base_commit_hash} {head_commit_hash} -w -U0')
+            f'{base_commit_hash} {head_commit_hash} '
+            f'{"" if pickup_whitespace_lines else "-w "}'
+            '-U0')
         result = subprocess.check_output(get_diff_cmd.split())
 
         diff_results_raw = result.decode('utf-8').split('\n')

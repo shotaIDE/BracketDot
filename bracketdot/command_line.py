@@ -15,16 +15,20 @@ from .svndiff import SvnDiff
 def bracket_dot():
     parser = argparse.ArgumentParser()
     parser.add_argument('--base', type=str, default=None)
+    parser.add_argument('-w', '--whitespace', action='store_true', default=False)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
     ALL_MODE = arguments.all
+    PICKUP_WHITESPACE_LINES = arguments.whitespace
 
     if ALL_MODE:
         target_lines = None
     else:
         git_diff = GitDiff()
-        target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
+        target_lines = git_diff.get_diff_lines(
+            base_hash=arguments.base,
+            pickup_whitespace_lines=PICKUP_WHITESPACE_LINES)
 
     convert_bracket_to_dot(lines=target_lines)
 
