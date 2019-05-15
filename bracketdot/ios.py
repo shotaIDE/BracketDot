@@ -113,6 +113,70 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
                 f.writelines(original_code)
 
 
+def get_objective_c_warnings_reports(project: str,
+                                     target: str,
+                                     config: str,
+                                     lines: dict = None) -> list:
+    LINT_OUTPUT_FORMAT = re.compile(
+        r'^\S*\s+'
+        r'([^:]*):'
+        r'([\d]+):([\d]+): '
+        r'(.*)$')
+
+    ALL_MODE = lines is None
+
+    if ALL_MODE:
+        target_lines = {}
+    else:
+        target_lines = lines
+
+    build_cmd = (
+        'xcodebuild clean build '
+        f'-project {project} '
+        f'-target {target} '
+        f'-config {config}')
+    build_result = subprocess.Popen(build_cmd.split(), stdout=subprocess.PIPE)
+    format_cmd = 'xcpretty'
+    result = subprocess.run(format_cmd, check=False, capture_output=True, stdin=build_result.stdout).stdout
+
+    build_results_raw = result.decode('utf-8').split('\n')
+    build_results = [line.replace('\r', '') for line in build_results_raw]
+
+    current_dir = os.getcwd()
+    issues = []
+
+    for build_result in build_results:
+        if not build_result.startswith('⚠️  '):
+            continue
+
+        matched = LINT_OUTPUT_FORMAT.match(build_result)
+        if not matched:
+            print(build_result)
+            continue
+
+        target_file_absolute_path = matched.groups()[0]
+        target_file_relative_path = target_file_absolute_path.replace(
+            current_dir, '')[1:]
+        target_line = int(matched.groups()[1])
+        target_column = int(matched.groups()[2])
+
+        if (not ALL_MODE and
+            (target_file_relative_path not in target_lines.keys() or
+                target_line not in target_lines[target_file_relative_path])):
+            continue
+
+        message = matched.groups()[3]
+
+        issues.append({
+            'path': target_file_relative_path,
+            'line': target_line,
+            'column': target_column,
+            'message': message,
+        })
+
+    return issues
+
+
 def get_swift_lint_reports(lines: dict = None) -> list:
     LINT_OUTPUT_FORMAT = re.compile(
         r'^([^:]*):'
