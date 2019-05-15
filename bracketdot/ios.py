@@ -117,12 +117,6 @@ def get_objective_c_warnings_reports(project: str,
                                      target: str,
                                      config: str,
                                      lines: dict = None) -> list:
-    LINT_OUTPUT_FORMAT = re.compile(
-        r'^\S*\s+'
-        r'([^:]*):'
-        r'([\d]+):([\d]+): '
-        r'(.*)$')
-
     ALL_MODE = lines is None
 
     if ALL_MODE:
@@ -135,23 +129,27 @@ def get_objective_c_warnings_reports(project: str,
         f'-project {project} '
         f'-target {target} '
         f'-config {config}')
-    build_result = subprocess.Popen(build_cmd.split(), stdout=subprocess.PIPE)
+    build_cmd_result = subprocess.Popen(build_cmd.split(), stdout=subprocess.PIPE)
     format_cmd = 'xcpretty'
-    result = subprocess.run(format_cmd, check=False, capture_output=True, stdin=build_result.stdout).stdout
+    result = subprocess.run(format_cmd, check=False, capture_output=True, stdin=build_cmd_result.stdout).stdout
 
     build_results_raw = result.decode('utf-8').split('\n')
     build_results = [line.replace('\r', '') for line in build_results_raw]
 
     current_dir = os.getcwd()
     issues = []
+    WARNING_OUTPUT_FORMAT = re.compile(
+        r'^\S*\s+'
+        r'([^:]*):'
+        r'([\d]+):([\d]+): '
+        r'(.*)$')
 
     for build_result in build_results:
         if not build_result.startswith('⚠️  '):
             continue
 
-        matched = LINT_OUTPUT_FORMAT.match(build_result)
+        matched = WARNING_OUTPUT_FORMAT.match(build_result)
         if not matched:
-            print(build_result)
             continue
 
         target_file_absolute_path = matched.groups()[0]
@@ -173,6 +171,55 @@ def get_objective_c_warnings_reports(project: str,
             'column': target_column,
             'message': message,
         })
+
+    build_cmd_result = subprocess.Popen(build_cmd.split(), stdout=subprocess.PIPE)
+    format_cmd = 'xcpretty -r json-compilation-database --output compile_commands.json'
+    subprocess.run(format_cmd.split(), check=False, capture_output=True, stdin=build_cmd_result.stdout)
+    extract_cmd = 'oclint-json-compilation-database -- -report-type xcode'
+    result = subprocess.run(extract_cmd.split(), check=False, capture_output=True).stdout
+
+    lint_results_raw = result.decode('utf-8').split('\n')
+    lint_results = [line.replace('\r', '') for line in lint_results_raw]
+
+    LINT_OUTPUT_FORMAT = re.compile(
+        r'^([^:]*):'
+        r'([\d]+):([\d]+): '
+        r'([^:]+): '
+        r'([^\[]+)'
+        r'\[([^|]+)|([^\]]+)\] '
+        r'(.*)$')
+
+    for lint_result in lint_results:
+        matched = LINT_OUTPUT_FORMAT.match(lint_result)
+        if not matched:
+            continue
+
+        target_file_absolute_path = matched.groups()[0]
+        target_file_relative_path = target_file_absolute_path.replace(
+            current_dir, '')[1:]
+        target_line = int(matched.groups()[1])
+        target_column = int(matched.groups()[2])
+
+        if (not ALL_MODE and
+            (target_file_relative_path not in target_lines.keys() or
+                target_line not in target_lines[target_file_relative_path])):
+            continue
+
+        severity = matched.groups()[3]
+        category = matched.groups()[4][:-1]
+        id = matched.groups()[5]
+        priority = matched.groups()[6]
+        message = matched.groups()[7]
+
+        issues.append({
+            'path': target_file_relative_path,
+            'line': target_line,
+            'column': target_column,
+            'message': message,
+            'tag': f'[{severity}-{priority}] {category} / {id}',
+        })
+
+    print(f'Found {len(issues)} issues.')
 
     return issues
 
