@@ -38,7 +38,7 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
     BRACKET_INDEX_SET_LINE = re.compile(
         r'\A(.*)'
         r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'replaceObjectAtIndex:([a-zA-Z_][a-zA-Z0-9_.]*)'
+        r'replaceObjectAtIndex:([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
         r'withObject:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
         r'(.*\s*)\Z')
 
