@@ -35,7 +35,7 @@ class GitDiff():
             '-U0')
         result = subprocess.check_output(get_diff_cmd.split())
 
-        diff_results_raw = result.decode('utf-8').split('\n')
+        diff_results_raw = result.decode('utf-8', 'ignore').split('\n')
         diff_results = [line.replace('\r', '') for line in diff_results_raw]
 
         RE_ADD_FILE_LINE = re.compile(r'^\+\+\+ b/(.*)$')
