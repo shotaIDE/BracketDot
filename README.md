@@ -12,6 +12,14 @@ cd ${BracketDotDirectory}
 pip install .
 ```
 
+### iOS Lint
+Install Command Line Tools from Apple Developer site and run the following command.
+
+```shell
+gem install xcpretty
+brew install swiftlint
+```
+
 ## Usage
 
 ```sh
