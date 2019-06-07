@@ -7,7 +7,7 @@ You have to prepare newer version than Python 3.6.
 
 ## Installation
 
-```sh
+```shell
 cd ${BracketDotDirectory}
 pip install .
 ```
@@ -22,7 +22,7 @@ brew install swiftlint
 
 ## Usage
 
-```sh
+```shell
 cd ${Objective-C Project Directory}
 bracket-dot
 ```
