@@ -14,6 +14,7 @@ from .svndiff import SvnDiff
 
 def bracket_dot():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--last', action='store_true', default=False)
     parser.add_argument('--base', type=str, default=None)
     parser.add_argument('-w', '--whitespace', action='store_true', default=False)
     parser.add_argument('--all', action='store_true', default=False)
@@ -27,6 +28,7 @@ def bracket_dot():
     else:
         git_diff = GitDiff()
         target_lines = git_diff.get_diff_lines(
+            last_commit=arguments.last,
             base_hash=arguments.base,
             pickup_whitespace_lines=PICKUP_WHITESPACE_LINES)
 
@@ -38,6 +40,7 @@ def objc():
     parser.add_argument('--project', type=str)
     parser.add_argument('--target', type=str)
     parser.add_argument('--config', type=str)
+    parser.add_argument('--last', action='store_true', default=False)
     parser.add_argument('--base', type=str, default=None)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
@@ -48,7 +51,9 @@ def objc():
         target_lines = None
     else:
         git_diff = GitDiff()
-        target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
+        target_lines = git_diff.get_diff_lines(
+            last_commit=arguments.last,
+            base_hash=arguments.base)
 
     reports = []
 
@@ -64,6 +69,7 @@ def objc():
 
 def swift():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--last', action='store_true', default=False)
     parser.add_argument('--base', type=str, default=None)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
@@ -74,7 +80,9 @@ def swift():
         target_lines = None
     else:
         git_diff = GitDiff()
-        target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
+        target_lines = git_diff.get_diff_lines(
+            last_commit=arguments.last,
+            base_hash=arguments.base)
 
     reports = []
 
@@ -89,6 +97,7 @@ def swift():
 
 def android():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--last', action='store_true', default=False)
     parser.add_argument('--base', type=str, default=None)
     parser.add_argument('--all', action='store_true', default=False)
     parser.add_argument('--cache', action='store_true', default=False)
@@ -103,10 +112,13 @@ def android():
         if arguments.svn:
             svn_diff = SvnDiff()
             target_lines = svn_diff.get_diff_lines(
+                last_commit=arguments.last,
                 base_rev=int(arguments.base))
         else:
             git_diff = GitDiff()
-            target_lines = git_diff.get_diff_lines(base_hash=arguments.base)
+            target_lines = git_diff.get_diff_lines(
+                last_commit=arguments.last,
+                base_hash=arguments.base)
 
     reports = []
 
