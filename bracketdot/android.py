@@ -34,7 +34,7 @@ def get_android_lint_reports(lines: dict = None,
                 'Wrote XML report to file:///', '').replace('\r', '')
             lint_report_file = lint_report_file_raw.replace('/', os.sep)
 
-        if lint_report_file is None:
+        if not lint_report_file:
             print('[ERROR] Lint report file was not found!')
             return
 
