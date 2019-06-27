@@ -11,9 +11,12 @@ class GitDiff():
 
     def get_diff_lines(
         self,
+        last_commit: bool = False,
         base_hash: str = None,
         pickup_whitespace_lines: bool = False) -> dict:
-        if base_hash is None:
+        current_changed = not last_commit and (base_hash is None)
+
+        if last_commit:
             get_base_commit_cmd = 'git log --pretty=format:"%p"'
             result = subprocess.check_output(get_base_commit_cmd.split())
             commit_hash_raw_list = result.decode('utf-8').split('\n')
@@ -24,10 +27,12 @@ class GitDiff():
 
         head_commit_hash = 'HEAD'
 
-        print(
-            'Collecting diff between '
-            f'{base_commit_hash} .. {head_commit_hash}')
-
+        if current_changed:
+            get_diff_cmd = (
+                'git --no-pager diff '
+                f'{"" if pickup_whitespace_lines else "-w "}'
+                '-U0')
+        else:
         get_diff_cmd = (
             'git --no-pager diff '
             f'{base_commit_hash} {head_commit_hash} '
