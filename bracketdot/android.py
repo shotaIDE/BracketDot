@@ -21,6 +21,8 @@ def get_android_lint_reports(lines: dict = None,
         lint_report_file = DEFAULT_LINT_RESULTS_PATH
     else:
         android_lint_cmd = 'gradlew.bat lint'
+        print(f'Running lint \"{android_lint_cmd}\" ...')
+
         result = subprocess.run(
             android_lint_cmd.split(),
             check=False,
@@ -38,6 +40,7 @@ def get_android_lint_reports(lines: dict = None,
             print('[ERROR] Lint report file was not found!')
             return
 
+    print(f'Load lint results from: {lint_report_file}')
     lint_report_tree = ElementTree.parse(lint_report_file)
     lint_report_root = lint_report_tree.getroot()
 
