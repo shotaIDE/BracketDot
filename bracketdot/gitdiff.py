@@ -22,6 +22,8 @@ class GitDiff():
             commit_hash_raw_list = result.decode('utf-8').split('\n')
             last_commit_hash_raw = commit_hash_raw_list[0].replace('"', '')
             base_commit_hash = last_commit_hash_raw.split()[0]
+
+            print(f'Extracted the last change: {base_commit_hash} .. HEAD')
         else:
             base_commit_hash = base_hash
 
@@ -33,11 +35,12 @@ class GitDiff():
                 f'{"" if pickup_whitespace_lines else "-w "}'
                 '-U0')
         else:
-        get_diff_cmd = (
-            'git --no-pager diff '
-            f'{base_commit_hash} {head_commit_hash} '
-            f'{"" if pickup_whitespace_lines else "-w "}'
-            '-U0')
+            get_diff_cmd = (
+                'git --no-pager diff '
+                f'{base_commit_hash} {head_commit_hash} '
+                f'{"" if pickup_whitespace_lines else "-w "}'
+                '-U0')
+        print(f'Collecting diff \"{get_diff_cmd}\" ...')
         result = subprocess.check_output(get_diff_cmd.split())
 
         diff_results_raw = result.decode('utf-8', 'ignore').split('\n')
@@ -74,5 +77,8 @@ class GitDiff():
                 results[target_file].append(target_line)
                 target_line += 1
                 continue
+
+        for target_file, target_lines in results.items():
+            print(f'  found {len(target_lines)} diff lines in {target_file}')
 
         return results
