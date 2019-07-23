@@ -112,7 +112,6 @@ def android():
         if arguments.svn:
             svn_diff = SvnDiff()
             target_lines = svn_diff.get_diff_lines(
-                last_commit=arguments.last,
                 base_rev=int(arguments.base))
         else:
             git_diff = GitDiff()
