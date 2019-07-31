@@ -331,13 +331,25 @@ def get_ios_spell_check_reports(lines: dict = None) -> list:
     else:
         target_lines = lines
 
-    IGNORE_FILE = '.gitdiffignore'
-    ignore_list = []
-    if os.path.exists(IGNORE_FILE):
-        with open(IGNORE_FILE, mode='r', encoding='utf-8') as f:
+    HOME_DIR = os.environ['HOME']
+    IGNORE_FILES = [
+        '.gitdiffignore',
+        f'{HOME_DIR}/.gitdiffignore',
+    ]
+    ignore_list_dup = []
+    for ignore_file in IGNORE_FILES:
+        if not os.path.exists(ignore_file):
+            continue
+
+        with open(ignore_file, mode='r', encoding='utf-8') as f:
             ignore_list_raw = f.readlines()
-            ignore_list = [
+            ignore_list_dup += [
                 word.replace('\n', '') for word in ignore_list_raw]
+            print(f'Loaded {len(ignore_list_raw)} words '
+                'to ignore for spell check words '
+                f'from {ignore_file}')
+
+    ignore_list = list(set(ignore_list_dup))
 
     current_dir = os.getcwd()
     spell = SpellChecker()
