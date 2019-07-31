@@ -16,6 +16,8 @@ pip install .
 Install Command Line Tools from Apple Developer site and run the following command.
 
 ```shell
+brew tap oclint/formulae
+brew install oclint
 gem install xcpretty
 brew install swiftlint
 ```
