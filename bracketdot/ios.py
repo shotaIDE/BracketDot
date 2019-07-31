@@ -56,7 +56,11 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
         r'(.*\s*)\Z')
 
     for target_file, line_numbers in lines.items():
-        with open(file=target_file, mode='r', encoding='utf-8') as f:
+        with open(
+            file=target_file,
+            mode='r',
+            encoding='utf-8',
+            errors='ignore') as f:
             original_code = f.readlines()
 
         num_replaced = 0
@@ -340,7 +344,11 @@ def get_ios_spell_check_reports(lines: dict = None) -> list:
     issues = []
 
     for target_file, line_numbers in target_lines.items():
-        with open(file=target_file, mode='r', encoding='utf-8') as f:
+        with open(
+            file=target_file,
+            mode='r',
+            encoding='utf-8',
+            errors='ignore') as f:
             original_code = f.readlines()
 
         for i, line in enumerate(original_code):
