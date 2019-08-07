@@ -257,7 +257,7 @@ def get_objective_c_warnings_reports(project: str,
             'tag': f'[{severity}-{priority}] {category} / {id}',
         })
 
-    print(f'Found {len(issues)} issues.')
+    print(f'Objective-C Lint: Found {len(issues)} issues.')
 
     return issues
 
@@ -311,6 +311,8 @@ def get_swift_lint_reports(lines: dict = None) -> list:
             'message': message,
             'tag': severity,
         })
+
+    print(f'Swift lint: Found {len(issues)} issues.')
 
     return issues
 
@@ -426,5 +428,7 @@ def get_ios_spell_check_reports(lines: dict = None) -> list:
                 'message': message,
                 'tag': 'Typo',
             })
+
+    print(f'Swift spell checker: Found {len(issues)} issues.')
 
     return issues

@@ -85,6 +85,6 @@ def get_android_lint_reports(lines: dict = None,
             'tag': f'[{severity}-{priority}] {category} / {id}',
         })
 
-    print(f'Found {len(issues)} issues.')
+    print(f'Android lint: Found {len(issues)} issues.')
 
     return issues
