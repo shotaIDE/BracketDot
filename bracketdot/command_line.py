@@ -5,7 +5,7 @@ import json
 import os
 from typing import NoReturn
 
-from .android import get_android_lint_reports
+from .android import get_android_lint_reports, get_android_spell_check_reports
 from .gitdiff import GitDiff
 from .ios import (convert_bracket_to_dot, get_ios_spell_check_reports,
                   get_swift_lint_reports, get_objective_c_warnings_reports)
@@ -102,6 +102,7 @@ def android():
     parser.add_argument('--all', action='store_true', default=False)
     parser.add_argument('--cache', action='store_true', default=False)
     parser.add_argument('--svn', action='store_true', default=False)
+    parser.add_argument('--inspection', type=str, default=None)
     arguments = parser.parse_args()
 
     ALL_MODE = arguments.all
@@ -124,6 +125,12 @@ def android():
     lint_reports = get_android_lint_reports(
         lines=target_lines,
         use_cache=arguments.cache)
+    reports.extend(lint_reports)
+
+    lint_reports = get_android_spell_check_reports(
+        lines=target_lines,
+        use_cache=arguments.cache,
+        inspection=arguments.inspection)
     reports.extend(lint_reports)
 
     _output_reports(reports)
