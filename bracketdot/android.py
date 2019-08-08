@@ -88,3 +88,71 @@ def get_android_lint_reports(lines: dict = None,
     print(f'Android lint: Found {len(issues)} issues.')
 
     return issues
+
+
+def get_android_spell_check_reports(lines: dict = None,
+                                    use_cache: bool = False,
+                                    inspection: str = None) -> dict:
+    SPELL_CHECK_RESULTS_PATH = 'inspection/SpellCheckingInspection.xml'
+
+    ALL_MODE = lines is None
+    USE_CACHE = use_cache
+
+    if not USE_CACHE and inspection is None:
+        print(f'Skipped spell check for missing inspection config option')
+        return []
+
+    INSPECTION_SETTINGS_PATH = inspection
+
+    if ALL_MODE:
+        target_lines = {}
+    else:
+        target_lines = lines
+
+    if not USE_CACHE:
+        android_inspection_cmd = (
+            f'inspect.bat ./ {INSPECTION_SETTINGS_PATH} ./inspection')
+        print(f'Running inspection \"{android_inspection_cmd}\" ...')
+
+        subprocess.run(
+            android_inspection_cmd.split(),
+            check=False)
+
+    print(f'Load lint results from: {SPELL_CHECK_RESULTS_PATH}')
+    spell_check_report_tree = ElementTree.parse(SPELL_CHECK_RESULTS_PATH)
+    spell_check_report_root = spell_check_report_tree.getroot()
+
+    current_dir = os.getcwd()
+    problems = []
+
+    for problem in spell_check_report_root:
+        if problem.tag != 'problem':
+            continue
+
+        target_file_absolute_path = problem.find('file').text
+        target_file_relative_path = target_file_absolute_path.replace(
+            'file://$PROJECT_DIR$/', '').replace(os.sep, '/')
+        target_line_raw = problem.find('line').text
+        if target_line_raw is None:
+            continue
+        target_line = int(target_line_raw)
+
+        if (not ALL_MODE and
+            (target_file_relative_path not in target_lines.keys() or
+                target_line not in target_lines[target_file_relative_path])):
+            continue
+
+        message = problem.find('description').text
+        severity = problem.find('problem_class').get('severity')
+        category = problem.find('problem_class').get('attribute_key')
+
+        problems.append({
+            'path': target_file_relative_path,
+            'line': target_line,
+            'message': message,
+            'tag': f'[{severity}] {category}',
+        })
+
+    print(f'Android spell check: Found {len(problems)} issues.')
+
+    return problems
