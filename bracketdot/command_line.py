@@ -138,7 +138,7 @@ def android():
 
 def _output_reports(reports: list) -> NoReturn:
     current_dir = os.getcwd()
-    OUTPUT_JSON_FILE = f'{current_dir}{os.sep}gitdiff_report.json'
+    OUTPUT_JSON_FILE = f'{current_dir}{os.sep}difflint_report.json'
 
     with open(OUTPUT_JSON_FILE, mode='w', encoding='utf-8') as f:
         json.dump(reports, f, indent=4, ensure_ascii=False)
