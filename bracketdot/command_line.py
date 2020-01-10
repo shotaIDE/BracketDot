@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import sys
 from typing import NoReturn
 
 from .android import get_android_lint_reports, get_android_spell_check_reports
@@ -93,6 +94,11 @@ def swift():
     reports.extend(swift_lint_reports)
 
     _output_reports(reports)
+
+    is_spell_check_error = len(swift_spell_check_reports) > 0
+    is_swift_lint_error = len(swift_lint_reports) > 0
+    exit_status = (1 if is_spell_check_error else 0) | (2 if is_swift_lint_error else 0)
+    return sys.exit(exit_status)
 
 
 def android():
