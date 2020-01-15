@@ -56,6 +56,10 @@ def objc():
             last_commit=arguments.last,
             base_hash=arguments.base)
 
+    if not _is_contains_target_ext(target_lines.keys(), ['.m', '.mm']):
+        print(f'No need to check because the difference of Objective-C was not found')
+        return
+
     reports = []
 
     objc_lint_reports = get_objective_c_warnings_reports(
@@ -84,6 +88,10 @@ def swift():
         target_lines = git_diff.get_diff_lines(
             last_commit=arguments.last,
             base_hash=arguments.base)
+
+    if not _is_contains_target_ext(target_lines.keys(), ['.swift']):
+        print(f'No need to check because the difference of Swift was not found')
+        return
 
     reports = []
 
@@ -150,3 +158,9 @@ def _output_reports(reports: list) -> NoReturn:
         json.dump(reports, f, indent=4, ensure_ascii=False)
 
     print(f'Successfully output in "{OUTPUT_JSON_FILE}""')
+
+
+def _is_contains_target_ext(file_names: str, allowed_ext_list: list) -> bool:
+    ext_list = [os.path.splitext(file_name)[1] for file_name in file_names]
+    target_ext_list = [ext for ext in ext_list if ext in allowed_ext_list]
+    return len(target_ext_list) > 0
