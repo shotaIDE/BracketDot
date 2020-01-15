@@ -71,6 +71,10 @@ def objc():
 
     _output_reports(reports)
 
+    is_objc_lint_error = len(objc_lint_reports) > 0
+    exit_status = 1 if is_objc_lint_error else 0
+    return sys.exit(exit_status)
+
 
 def swift():
     parser = argparse.ArgumentParser()
