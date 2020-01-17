@@ -56,11 +56,10 @@ def convert_bracket_to_dot(lines: dict) -> NoReturn:
         r'(.*\s*)\Z')
 
     for target_file, line_numbers in lines.items():
-        with open(
-            file=target_file,
-            mode='r',
-            encoding='utf-8',
-            errors='ignore') as f:
+        with open(file=target_file,
+                  mode='r',
+                  encoding='utf-8',
+                  errors='ignore') as f:
             original_code = f.readlines()
 
         num_replaced = 0
@@ -167,9 +166,14 @@ def get_objective_c_warnings_reports(project: str,
         f'-project {project} '
         f'-target {target} '
         f'-config {config}')
-    build_cmd_result = subprocess.Popen(build_cmd.split(), stdout=subprocess.PIPE)
+    build_cmd_result = subprocess.Popen(
+        build_cmd.split(), stdout=subprocess.PIPE)
     format_cmd = 'xcpretty'
-    result = subprocess.run(format_cmd, check=False, capture_output=True, stdin=build_cmd_result.stdout).stdout
+    result = subprocess.run(
+        format_cmd,
+        check=False,
+        capture_output=True,
+        stdin=build_cmd_result.stdout).stdout
 
     build_results_raw = result.decode('utf-8').split('\n')
     build_results = [line.replace('\r', '') for line in build_results_raw]
@@ -210,11 +214,18 @@ def get_objective_c_warnings_reports(project: str,
             'message': message,
         })
 
-    build_cmd_result = subprocess.Popen(build_cmd.split(), stdout=subprocess.PIPE)
-    format_cmd = 'xcpretty -r json-compilation-database --output compile_commands.json'
-    subprocess.run(format_cmd.split(), check=False, capture_output=True, stdin=build_cmd_result.stdout)
+    build_cmd_result = subprocess.Popen(
+        build_cmd.split(), stdout=subprocess.PIPE)
+    format_cmd = 'xcpretty -r json-compilation-database \
+        --output compile_commands.json'
+    subprocess.run(
+        format_cmd.split(),
+        check=False,
+        capture_output=True,
+        stdin=build_cmd_result.stdout)
     extract_cmd = 'oclint-json-compilation-database -- -report-type xcode'
-    result = subprocess.run(extract_cmd.split(), check=False, capture_output=True).stdout
+    result = subprocess.run(
+        extract_cmd.split(), check=False, capture_output=True).stdout
 
     lint_results_raw = result.decode('utf-8').split('\n')
     lint_results = [line.replace('\r', '') for line in lint_results_raw]
@@ -347,9 +358,9 @@ def get_ios_spell_check_reports(lines: dict = None) -> list:
             ignore_list_raw = f.readlines()
             ignore_list_dup += [
                 word.replace('\n', '') for word in ignore_list_raw]
-            print(f'Loaded {len(ignore_list_raw)} words '
-                'to ignore for spell check words '
-                f'from {ignore_file}')
+            print(f'Loaded {len(ignore_list_raw)} words \
+                to ignore for spell check words \
+                from {ignore_file}')
 
     ignore_list = list(set(ignore_list_dup))
 
@@ -358,11 +369,10 @@ def get_ios_spell_check_reports(lines: dict = None) -> list:
     issues = []
 
     for target_file, line_numbers in target_lines.items():
-        with open(
-            file=target_file,
-            mode='r',
-            encoding='utf-8',
-            errors='ignore') as f:
+        with open(file=target_file,
+                  mode='r',
+                  encoding='utf-8',
+                  errors='ignore') as f:
             original_code = f.readlines()
 
         for i, line in enumerate(original_code):

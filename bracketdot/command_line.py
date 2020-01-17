@@ -17,7 +17,8 @@ def bracket_dot():
     parser = argparse.ArgumentParser()
     parser.add_argument('--last', action='store_true', default=False)
     parser.add_argument('--base', type=str, default=None)
-    parser.add_argument('-w', '--whitespace', action='store_true', default=False)
+    parser.add_argument(
+        '-w', '--whitespace', action='store_true', default=False)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
@@ -57,7 +58,8 @@ def objc():
             base_hash=arguments.base)
 
     if not _is_contains_target_ext(target_lines.keys(), ['.m', '.mm']):
-        print(f'No need to check because the difference of Objective-C was not found')
+        print('No need to check '
+              'because the difference of Objective-C was not found')
         return
 
     reports = []
@@ -94,7 +96,8 @@ def swift():
             base_hash=arguments.base)
 
     if not _is_contains_target_ext(target_lines.keys(), ['.swift']):
-        print(f'No need to check because the difference of Swift was not found')
+        print('No need to check '
+              'because the difference of Swift was not found')
         return
 
     reports = []
@@ -109,7 +112,8 @@ def swift():
 
     is_spell_check_error = len(swift_spell_check_reports) > 0
     is_swift_lint_error = len(swift_lint_reports) > 0
-    exit_status = (1 if is_spell_check_error else 0) | (2 if is_swift_lint_error else 0)
+    exit_status = (1 if is_spell_check_error else 0) \
+        | (2 if is_swift_lint_error else 0)
     return sys.exit(exit_status)
 
 
