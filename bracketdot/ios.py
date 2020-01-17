@@ -273,7 +273,7 @@ def get_objective_c_warnings_reports(project: str,
     return issues
 
 
-def get_swift_lint_reports(lines: dict = None) -> list:
+def get_swift_lint_reports(parent_dir: str, lines: dict = None) -> list:
     LINT_OUTPUT_FORMAT = re.compile(
         r'^([^:]*):'
         r'([\d]+):([\d]+): '
@@ -287,13 +287,22 @@ def get_swift_lint_reports(lines: dict = None) -> list:
     else:
         target_lines = lines
 
-    lint_cmd = 'swiftlint'
-    result = subprocess.run(lint_cmd, check=False, capture_output=True).stdout
+    directory_option = ''
+    if parent_dir is not None:
+        directory_option = f'--path {parent_dir}'
+
+    lint_cmd = f'swiftlint {directory_option}'
+
+    result = subprocess.run(
+        lint_cmd.split(), check=False, capture_output=True).stdout
 
     lint_results_raw = result.decode('utf-8').split('\n')
     lint_results = [line.replace('\r', '') for line in lint_results_raw]
 
-    current_dir = os.getcwd()
+    if parent_dir is not None:
+        current_dir = parent_dir
+    else:
+        current_dir = os.getcwd()
     issues = []
 
     for lint_result in lint_results:
@@ -328,7 +337,7 @@ def get_swift_lint_reports(lines: dict = None) -> list:
     return issues
 
 
-def get_ios_spell_check_reports(lines: dict = None) -> list:
+def get_ios_spell_check_reports(parent_dir: str, lines: dict = None) -> list:
     DEFINITION_PATTERN = re.compile(
         r'(let|var|func|class|enum|struct)(\s+)([a-zA-Z0-9_]+)')
     VARIABLE_PATTERN = re.compile(
@@ -369,7 +378,12 @@ def get_ios_spell_check_reports(lines: dict = None) -> list:
     issues = []
 
     for target_file, line_numbers in target_lines.items():
-        with open(file=target_file,
+        if parent_dir is not None:
+            target_full_path = f'{parent_dir}/{target_file}'
+        else:
+            target_full_path = target_file
+
+        with open(file=target_full_path,
                   mode='r',
                   encoding='utf-8',
                   errors='ignore') as f:
