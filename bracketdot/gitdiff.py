@@ -9,11 +9,10 @@ class GitDiff():
     def __init__(self):
         pass
 
-    def get_diff_lines(
-        self,
-        last_commit: bool = False,
-        base_hash: str = None,
-        pickup_whitespace_lines: bool = False) -> dict:
+    def get_diff_lines(self,
+                       last_commit: bool = False,
+                       base_hash: str = None,
+                       pickup_whitespace_lines: bool = False) -> dict:
         current_changed = not last_commit and (base_hash is None)
 
         if last_commit:

@@ -122,7 +122,6 @@ def get_android_spell_check_reports(lines: dict = None,
     spell_check_report_tree = ElementTree.parse(SPELL_CHECK_RESULTS_PATH)
     spell_check_report_root = spell_check_report_tree.getroot()
 
-    current_dir = os.getcwd()
     problems = []
 
     for problem in spell_check_report_root:
