@@ -85,6 +85,8 @@ def swift():
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
+    REPOSITORY_PATH = _get_repository_path()
+
     ALL_MODE = arguments.all
 
     if ALL_MODE:
@@ -92,6 +94,7 @@ def swift():
     else:
         git_diff = GitDiff()
         target_lines = git_diff.get_diff_lines(
+            repository_path=REPOSITORY_PATH,
             last_commit=arguments.last,
             base_hash=arguments.base)
 
@@ -102,10 +105,12 @@ def swift():
 
     reports = []
 
-    swift_spell_check_reports = get_ios_spell_check_reports(lines=target_lines)
+    swift_spell_check_reports = get_ios_spell_check_reports(
+        parent_dir=REPOSITORY_PATH, lines=target_lines)
     reports.extend(swift_spell_check_reports)
 
-    swift_lint_reports = get_swift_lint_reports(lines=target_lines)
+    swift_lint_reports = get_swift_lint_reports(
+        parent_dir=REPOSITORY_PATH, lines=target_lines)
     reports.extend(swift_lint_reports)
 
     _output_reports(reports)
@@ -156,6 +161,10 @@ def android():
     reports.extend(lint_reports)
 
     _output_reports(reports)
+
+
+def _get_repository_path() -> str:
+    return os.environ.get('BRACKET_DOT_TARGET_DIR_FOR_DEBUG')
 
 
 def _output_reports(reports: list) -> NoReturn:

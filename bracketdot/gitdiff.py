@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 import re
 import subprocess
 
@@ -10,6 +11,7 @@ class GitDiff():
         pass
 
     def get_diff_lines(self,
+                       repository_path: str = None,
                        last_commit: bool = False,
                        base_hash: str = None,
                        pickup_whitespace_lines: bool = False) -> dict:
@@ -28,18 +30,28 @@ class GitDiff():
 
         head_commit_hash = 'HEAD'
 
+        directory_option = ''
+        if repository_path is not None:
+            directory_option = f'-C {repository_path} '
+
         if current_changed:
             get_diff_cmd = (
-                'git --no-pager diff '
+                'git '
+                f'{directory_option}'
+                '--no-pager diff '
                 f'{"" if pickup_whitespace_lines else "-w "}'
                 '-U0')
         else:
             get_diff_cmd = (
-                'git --no-pager diff '
+                'git '
+                f'{directory_option}'
+                '--no-pager diff '
                 f'{base_commit_hash} {head_commit_hash} '
                 f'{"" if pickup_whitespace_lines else "-w "}'
                 '-U0')
+
         print(f'Collecting diff \"{get_diff_cmd}\" ...')
+
         result = subprocess.check_output(get_diff_cmd.split())
 
         diff_results_raw = result.decode('utf-8', 'ignore').split('\n')
