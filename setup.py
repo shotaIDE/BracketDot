@@ -13,6 +13,11 @@ setup(
     install_requires=[
         'pyspellchecker>=0.4.0',
     ],
+    extras_require={
+        'dev': [
+            'pytest-pycodestyle',
+        ]
+    },
     entry_points={
         'console_scripts': [
             'bracket-dot=bracketdot.command_line:bracket_dot',
