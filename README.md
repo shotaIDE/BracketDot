@@ -1,8 +1,20 @@
 # BracketDot
 
-BracketDot is tools for auto converting to modern Objective-C coding style.
+## What is this ?
+
+A tool that runs lint focusing only on the latest changes in Git.
+
+The supported lint is as follows.
+
+- Swift
+  - Spell checker
+  - Static analytics by SwiftLint
+- Objective-C
+  - Warnings by xcodebuild
+  - Static analytics by OCLint
 
 ## Prerequisites
+
 You have to prepare newer version than Python 3.6.
 
 ## Installation
@@ -19,6 +31,7 @@ brew install swiftlint
 ```
 
 ### Objective-C Lint
+
 Install Command Line Tools from Apple Developer site and run the following command.
 
 ```shell
@@ -28,6 +41,7 @@ gem install xcpretty
 ```
 
 ## Usage
+
 ### Swift Lint
 
 ```shell
