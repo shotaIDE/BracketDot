@@ -13,26 +13,50 @@ The supported lint is as follows.
   - Warnings by xcodebuild
   - Static analytics by OCLint
 
-## Prerequisites
+## How to start ?
 
-You have to prepare newer version than Python 3.6.
+Requires **Python 3.6** or higher
 
-## Installation
+### Swift
+
+Clone this repository on your local.
+
+Install this package by using pip.
 
 ```shell
-cd ${BracketDotDirectory}
+cd ${Bracket Dot Directory}
 pip install .
 ```
 
-### Swift Lint
+Install [SwiftLint](https://github.com/realm/SwiftLint).
 
 ```shell
 brew install swiftlint
 ```
 
-### Objective-C Lint
+Move directory to your swift project which you want to analyze and run command as below.
 
-Install Command Line Tools from Apple Developer site and run the following command.
+```shell
+cd ${Swift Project Directory}
+difflint-swift --last
+```
+
+You can get analytics results in `./difflint_report.json`.
+
+### Objective-C
+
+Clone this repository on your local.
+
+Install this package by using pip.
+
+```shell
+cd ${Bracket Dot Directory}
+pip install .
+```
+
+Install **Command Line Tools** from Apple Developer site.
+
+Install [OCLint](http://docs.oclint.org/en/stable/intro/installation.html) and [xcpretty](https://github.com/xcpretty/xcpretty).
 
 ```shell
 brew tap oclint/formulae
@@ -40,16 +64,29 @@ brew install oclint
 gem install xcpretty
 ```
 
-## Usage
-
-### Swift Lint
+Move directory to your Objective-C project which you want to analyze and run command as below.
 
 ```shell
-cd ${Swift_Project_Directory}
-difflint-swift --last
+cd ${Objective-C Project Directory}
+difflint-objc --last --project Project.xcodeproj --target Target --config Debug
 ```
 
+You can get analytics results in `./difflint_report.json`.
+
 ### Bracket Dot
+
+**This feature is currently under development and should not be used by non-developers.**
+
+Clone this repository on your local.
+
+Install this package by using pip.
+
+```shell
+cd ${Bracket Dot Directory}
+pip install .
+```
+
+Move directory to your Objective-C project which you want to analyze and run command as below.
 
 ```shell
 cd ${Objective-C Project Directory}
@@ -68,11 +105,4 @@ After:
 
 ```objc:sample.m
 String *title = self.sharedInstance.generateTitle;
-```
-
-### Objective-C Lint
-
-```shell
-cd ${Objective-C Project Directory}
-difflint-objc --last --project Project.xcodeproj --target Target --config Debug
 ```
