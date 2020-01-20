@@ -39,6 +39,7 @@ class GitDiff():
                 'git '
                 f'{directory_option}'
                 '--no-pager diff '
+                '--staged '
                 f'{"" if pickup_whitespace_lines else "-w "}'
                 '-U0')
         else:
