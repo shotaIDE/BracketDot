@@ -14,7 +14,7 @@ class GitDiff():
                        repository_path: str = None,
                        last_commit: bool = False,
                        base_hash: str = None,
-                       pickup_whitespace_lines: bool = False) -> dict:
+                       ignore_whitespace_lines: bool = False) -> dict:
         current_changed = not last_commit and (base_hash is None)
 
         if last_commit:
@@ -40,7 +40,7 @@ class GitDiff():
                 f'{directory_option}'
                 '--no-pager diff '
                 '--staged '
-                f'{"" if pickup_whitespace_lines else "-w "}'
+                f'{"-w " if ignore_whitespace_lines else ""}'
                 '-U0')
         else:
             get_diff_cmd = (
@@ -48,7 +48,7 @@ class GitDiff():
                 f'{directory_option}'
                 '--no-pager diff '
                 f'{base_commit_hash} {head_commit_hash} '
-                f'{"" if pickup_whitespace_lines else "-w "}'
+                f'{"-w " if ignore_whitespace_lines else ""}'
                 '-U0')
 
         print(f'Collecting diff \"{get_diff_cmd}\" ...')
