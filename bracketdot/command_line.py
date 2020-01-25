@@ -18,12 +18,12 @@ def bracket_dot():
     parser.add_argument('--last', action='store_true', default=False)
     parser.add_argument('--base', type=str, default=None)
     parser.add_argument(
-        '-w', '--whitespace', action='store_true', default=False)
+        '-w', '--ignore-whitespace', action='store_true', default=False)
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
     ALL_MODE = arguments.all
-    PICKUP_WHITESPACE_LINES = arguments.whitespace
+    IGNORE_WHITESPACE_LINES = arguments.ignore_whitespace
 
     if ALL_MODE:
         target_lines = None
@@ -32,7 +32,7 @@ def bracket_dot():
         target_lines = git_diff.get_diff_lines(
             last_commit=arguments.last,
             base_hash=arguments.base,
-            pickup_whitespace_lines=PICKUP_WHITESPACE_LINES)
+            ignore_whitespace_lines=IGNORE_WHITESPACE_LINES)
 
     convert_bracket_to_dot(lines=target_lines)
 
