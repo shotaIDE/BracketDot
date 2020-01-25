@@ -6,7 +6,7 @@ import re
 import subprocess
 from typing import NoReturn
 
-from spellchecker import SpellChecker
+from .spell_check import spell_check
 
 
 def convert_bracket_to_dot(lines: dict) -> NoReturn:
@@ -338,11 +338,6 @@ def get_swift_lint_reports(parent_dir: str, lines: dict = None) -> list:
 
 
 def get_ios_spell_check_reports(parent_dir: str, lines: dict = None) -> list:
-    DEFINITION_PATTERN = re.compile(
-        r'(let|var|func|class|enum|struct)(\s+)([a-zA-Z0-9_]+)')
-    VARIABLE_PATTERN = re.compile(
-        r'[a-zA-Z][a-z]*')
-
     ALL_MODE = lines is None
 
     if ALL_MODE:
@@ -374,7 +369,7 @@ def get_ios_spell_check_reports(parent_dir: str, lines: dict = None) -> list:
     ignore_list = list(set(ignore_list_dup))
 
     current_dir = os.getcwd()
-    spell = SpellChecker()
+
     issues = []
 
     for target_file, line_numbers in target_lines.items():
@@ -393,65 +388,28 @@ def get_ios_spell_check_reports(parent_dir: str, lines: dict = None) -> list:
             if not ALL_MODE and i + 1 not in line_numbers:
                 continue
 
+            fixed_list = spell_check(line=line, ignore_list=ignore_list)
+
+            if len(fixed_list) == 0:
+                continue
+
             target_file_relative_path = target_file.replace(
                 current_dir, '')
             target_line = i + 1
 
-            matched_list = DEFINITION_PATTERN.findall(line)
-            convert_list = []
+            for fixed in fixed_list:
+                original_definition = fixed['src']
+                fixed_definition = fixed['dst']
+                message = (
+                    f'In word \'{original_definition}\'. '
+                    f'Did you mean \'{fixed_definition}\' ?')
 
-            for matched in matched_list:
-                definition_all = matched[2]
-
-                variable_matched_list_raw = VARIABLE_PATTERN.findall(
-                    definition_all)
-
-                variable_matched_list = [
-                    word
-                    for word in variable_matched_list_raw
-                    if word.lower() not in ignore_list]
-                if variable_matched_list is None:
-                    print(
-                        f'[ERROR] "{definition_all}" is '
-                        'not matched variable pattern.')
-
-                for original_word in variable_matched_list:
-                    misspelled = spell.unknown([original_word.lower()])
-                    if not misspelled:
-                        continue
-
-                    correct_word_raw = spell.correction(original_word)
-                    if (len(correct_word_raw) >= 2 and
-                            original_word[0].isupper()):
-                        correct_word = (
-                            correct_word_raw[0].upper() +
-                            correct_word_raw[1:-1])
-                    else:
-                        correct_word = correct_word_raw
-
-                    convert_list.append({
-                        'src': original_word,
-                        'dst': correct_word,
-                    })
-
-            if len(convert_list) == 0:
-                continue
-
-            replaced_def = definition_all
-            for convert in convert_list:
-                replaced_def = replaced_def.replace(
-                    convert['src'], convert['dst'])
-
-            message = (
-                f'In word \'{definition_all}\'. '
-                f'Did you mean \'{replaced_def}\' ?')
-
-            issues.append({
-                'path': target_file_relative_path,
-                'line': target_line,
-                'message': message,
-                'tag': 'Typo',
-            })
+                issues.append({
+                    'path': target_file_relative_path,
+                    'line': target_line,
+                    'message': message,
+                    'tag': 'Typo',
+                })
 
     print(f'Swift spell checker: Found {len(issues)} issues.')
 
