@@ -31,7 +31,7 @@ Install [SwiftLint](https://github.com/realm/SwiftLint).
 brew install swiftlint
 ```
 
-Move directory to your swift project which you want to analyze and run command as below.
+Move directory to your swift project which you want to analyze and run the following command.
 
 ```shell
 cd ${Swift Project Directory}
@@ -52,7 +52,7 @@ brew install oclint
 gem install xcpretty
 ```
 
-Move directory to your Objective-C project which you want to analyze and run command as below.
+Move directory to your Objective-C project which you want to analyze and run the following command.
 
 ```shell
 cd ${Objective-C Project Directory}
@@ -65,14 +65,14 @@ You can get analytics results in `./difflint_report.json`.
 
 **This feature is currently under development and should not be used by non-developers.**
 
-Move directory to your Objective-C project which you want to analyze and run command as below.
+Move directory to your Objective-C project which you want to analyze and run the following command.
 
 ```shell
 cd ${Objective-C Project Directory}
 bracket-dot
 ```
 
-Objective-C files will be converted as below.
+Objective-C files will be converted as follows.
 
 Before:
 
