@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  lint:
+  lint-and-test:
     docker:
       - image: circleci/python:3.6-buster
     steps:
@@ -18,17 +18,24 @@ jobs:
           command: |
             . env/bin/activate
             pytest --pycodestyle --junitxml=reports/pycodestyle-output.xml
+      - run:
+          name: Run test
+          command: |
+            . env/bin/activate
+            pytest --junitxml=reports/test-output.xml --cov=bracketdot --cov-report=html
       - store_test_results:
-          path: reports/pycodestyle-output.xml
+          path: reports
       - store_artifacts:
           path: reports/pycodestyle-output.xml
+      - store_artifacts:
+          path: htmlcov
 
 workflows:
   version: 2
 
   check:
     jobs:
-      - lint:
+      - lint-and-test:
           filters:
             branches:
               ignore: master
