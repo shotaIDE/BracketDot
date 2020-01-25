@@ -22,19 +22,15 @@ def spell_check(line: str, ignore_list: list = []) -> list:
         words_in_definition_contains_upper = VARIABLE_PATTERN.findall(
             whole_definition)
 
-        words_in_definition = [
-            word
-            for word in words_in_definition_contains_upper
-            if word.lower() not in ignore_list]
-        if words_in_definition is None:
-            print(
-                f'[ERROR] "{whole_definition}" is '
-                'not matched variable pattern.')
-
         fixed_list = []
 
-        for word in words_in_definition:
-            misspelled = spell.unknown([word.lower()])
+        for word in words_in_definition_contains_upper:
+            word_lower = word.lower()
+
+            if word_lower in ignore_list:
+                continue
+
+            misspelled = spell.unknown([word_lower])
             if not misspelled:
                 continue
 
