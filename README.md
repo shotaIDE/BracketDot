@@ -17,16 +17,13 @@ The supported lint is as follows.
 
 Requires **Python 3.6** or higher
 
-### Swift
-
-Clone this repository on your local.
-
-Install this package by using pip.
+Install by using pip.
 
 ```shell
-cd ${Bracket Dot Directory}
-pip install .
+pip install bracketdot
 ```
+
+### Check Swift codes
 
 Install [SwiftLint](https://github.com/realm/SwiftLint).
 
@@ -34,7 +31,7 @@ Install [SwiftLint](https://github.com/realm/SwiftLint).
 brew install swiftlint
 ```
 
-Move directory to your swift project which you want to analyze and run command as below.
+Move directory to your swift project which you want to analyze and run the following command.
 
 ```shell
 cd ${Swift Project Directory}
@@ -43,16 +40,7 @@ difflint-swift --last
 
 You can get analytics results in `./difflint_report.json`.
 
-### Objective-C
-
-Clone this repository on your local.
-
-Install this package by using pip.
-
-```shell
-cd ${Bracket Dot Directory}
-pip install .
-```
+### Check Objective-C codes
 
 Install **Command Line Tools** from Apple Developer site.
 
@@ -64,7 +52,7 @@ brew install oclint
 gem install xcpretty
 ```
 
-Move directory to your Objective-C project which you want to analyze and run command as below.
+Move directory to your Objective-C project which you want to analyze and run the following command.
 
 ```shell
 cd ${Objective-C Project Directory}
@@ -73,27 +61,18 @@ difflint-objc --last --project Project.xcodeproj --target Target --config Debug
 
 You can get analytics results in `./difflint_report.json`.
 
-### Bracket Dot
+### Fix legacy Objective-C notation
 
 **This feature is currently under development and should not be used by non-developers.**
 
-Clone this repository on your local.
-
-Install this package by using pip.
-
-```shell
-cd ${Bracket Dot Directory}
-pip install .
-```
-
-Move directory to your Objective-C project which you want to analyze and run command as below.
+Move directory to your Objective-C project which you want to analyze and run the following command.
 
 ```shell
 cd ${Objective-C Project Directory}
 bracket-dot
 ```
 
-Objective-C files will be converted as below.
+Objective-C files will be converted as follows.
 
 Before:
 
@@ -106,3 +85,14 @@ After:
 ```objc:sample.m
 String *title = self.sharedInstance.generateTitle;
 ```
+
+## How to develop ?
+
+Clone this repository to your local, and execute the following command.
+
+```shell
+cd ${Bracket Dot Directory}
+pip install -e '.[dev]'
+```
+
+You can debug by using launch configuration for VSCode.
