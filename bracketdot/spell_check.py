@@ -43,7 +43,7 @@ def spell_check(line: str, ignore_list: list = []) -> list:
                     word[0].isupper()):
                 fixed_word = (
                     fixed_word_lower[0].upper() +
-                    fixed_word_lower[1:-1])
+                    fixed_word_lower[1:])
             else:
                 fixed_word = fixed_word_lower
 
