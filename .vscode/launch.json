@@ -1,14 +1,22 @@
 {
-  // IntelliSense を使用して利用可能な属性を学べます。
-  // 既存の属性の説明をホバーして表示します。
-  // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Swift (difflint-swift)",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/run_scripts.py",
+            "program": "${workspaceFolder}/run_swift.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "BracketDot (bracket-dot)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/run_bracket_dot.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.env"
         }
