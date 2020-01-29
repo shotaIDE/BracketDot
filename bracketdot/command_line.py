@@ -22,6 +22,8 @@ def bracket_dot():
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
+    REPOSITORY_PATH = _get_repository_path()
+
     ALL_MODE = arguments.all
     IGNORE_WHITESPACE_LINES = arguments.ignore_whitespace
 
@@ -30,11 +32,14 @@ def bracket_dot():
     else:
         git_diff = GitDiff()
         target_lines = git_diff.get_diff_lines(
+            repository_path=REPOSITORY_PATH,
             last_commit=arguments.last,
             base_hash=arguments.base,
             ignore_whitespace_lines=IGNORE_WHITESPACE_LINES)
 
-    convert_bracket_to_dot(lines=target_lines)
+    convert_bracket_to_dot(
+        parent_dir=REPOSITORY_PATH,
+        lines=target_lines)
 
 
 def objc():

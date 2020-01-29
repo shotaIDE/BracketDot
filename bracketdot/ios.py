@@ -7,146 +7,39 @@ import subprocess
 from typing import NoReturn
 
 from .spell_check import spell_check
+from .bracket_dot import get_bracket_to_dot
 
 
-def convert_bracket_to_dot(lines: dict) -> NoReturn:
-    REPLACABLE_BRACKET_LINE = re.compile(
-        r'(?!\A\s*'
-        r'\[[a-zA-Z_][a-zA-Z0-9_.]*\s+[a-zA-Z_][a-zA-Z0-9_.]*\]'
-        r'\s*;\s*\Z)'
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+([a-zA-Z_][a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
-
-    BRACKET_SETTER_LINE = re.compile(
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'set([A-Z])([a-zA-Z0-9_.]*):([a-zA-Z_][a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
-
-    BRACKET_GETTER_LINE = re.compile(
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+get([A-Z])([a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
-
-    BRACKET_INDEX_GET_LINE = re.compile(
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'objectAtIndex:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
-
-    BRACKET_INDEX_SET_LINE = re.compile(
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'replaceObjectAtIndex:([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'withObject:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
-
-    BRACKET_KEY_GET_LINE = re.compile(
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'objectForKey:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
-
-    BRACKET_KEY_SET_LINE = re.compile(
-        r'\A(.*)'
-        r'\[([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'setObject:([a-zA-Z_][a-zA-Z0-9_.]*)\s+'
-        r'forKey:([a-zA-Z_][a-zA-Z0-9_.]*)\]'
-        r'(.*\s*)\Z')
+def convert_bracket_to_dot(parent_dir: str, lines: dict) -> NoReturn:
+    if parent_dir is not None:
+        target_dir = f'{parent_dir}/'
+    else:
+        target_dir = ''
 
     for target_file, line_numbers in lines.items():
-        with open(file=target_file,
+        target_file_path = f'{target_dir}{target_file}'
+        with open(file=target_file_path,
                   mode='r',
                   encoding='utf-8',
                   errors='ignore') as f:
             original_code = f.readlines()
 
-        num_replaced = 0
-        num_replaced_in_step = -1
-        while num_replaced_in_step != 0:
-            num_replaced_in_step = 0
-            for i, line in enumerate(original_code):
-                if i + 1 not in line_numbers:
-                    continue
+        num_replaced_lines = 0
 
-                matched = REPLACABLE_BRACKET_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}.{groups[2]}'
-                        f'{groups[3]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
+        for i, line in enumerate(original_code):
+            if i + 1 not in line_numbers:
+                continue
 
-                matched = BRACKET_SETTER_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}.{groups[2].lower()}{groups[3]}'
-                        f' = {groups[4]}'
-                        f'{groups[5]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
+            replaced_line = get_bracket_to_dot(line=line)
 
-                matched = BRACKET_GETTER_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}.{groups[2].lower()}{groups[3]}'
-                        f'{groups[4]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
+            if replaced_line is None:
+                continue
 
-                matched = BRACKET_INDEX_GET_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}[{groups[2]}]'
-                        f'{groups[3]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
+            original_code[i] = replaced_line
+            num_replaced_lines += 1
 
-                matched = BRACKET_INDEX_SET_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}[{groups[2]}]'
-                        f' = {groups[3]}'
-                        f'{groups[4]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
-
-                matched = BRACKET_KEY_GET_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}[{groups[2]}]'
-                        f'{groups[3]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
-
-                matched = BRACKET_KEY_SET_LINE.match(line)
-                if matched:
-                    groups = matched.groups()
-                    replaced = (
-                        f'{groups[0]}'
-                        f'{groups[1]}[{groups[3]}]'
-                        f' = {groups[2]}'
-                        f'{groups[4]}')
-                    original_code[i] = replaced
-                    num_replaced_in_step += 1
-
-            num_replaced += num_replaced_in_step
-
-        if num_replaced > 0:
-            with open(file=target_file, mode='w', encoding='utf-8') as f:
+        if num_replaced_lines > 0:
+            with open(file=target_file_path, mode='w', encoding='utf-8') as f:
                 f.writelines(original_code)
 
 
