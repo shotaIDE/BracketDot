@@ -49,7 +49,8 @@ BRACKET_KEY_SET_LINE = re.compile(
     r'(.*\s*)\Z')
 
 
-def get_bracket_to_dot(line: str) -> str:
+def get_bracket_to_dot(line: str) -> dict:
+    fixed_results = {}
     replaced_line = line
     num_replaced = 0
 
@@ -139,4 +140,8 @@ def get_bracket_to_dot(line: str) -> str:
     if num_replaced == 0:
         return
 
-    return replaced_line
+    fixed_results = {
+        'src': line,
+        'dst': replaced_line,
+    }
+    return fixed_results

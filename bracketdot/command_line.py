@@ -8,8 +8,8 @@ from typing import NoReturn
 
 from .android import get_android_lint_reports, get_android_spell_check_reports
 from .gitdiff import GitDiff
-from .ios import (convert_bracket_to_dot, get_ios_spell_check_reports,
-                  get_swift_lint_reports, get_objective_c_warnings_reports)
+from .ios import (get_ios_spell_check_reports, get_objective_c_fix_suggestions,
+                  get_objective_c_warnings_reports, get_swift_lint_reports)
 from .svndiff import SvnDiff
 
 
@@ -37,9 +37,15 @@ def bracket_dot():
             base_hash=arguments.base,
             ignore_whitespace_lines=IGNORE_WHITESPACE_LINES)
 
-    convert_bracket_to_dot(
+    reports = get_objective_c_fix_suggestions(
         parent_dir=REPOSITORY_PATH,
         lines=target_lines)
+
+    _output_reports(reports=reports, dir=REPOSITORY_PATH)
+
+    is_error = len(reports) > 0
+    exit_status = 1 if is_error else 0
+    return sys.exit(exit_status)
 
 
 def objc():

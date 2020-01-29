@@ -10,7 +10,9 @@ from .spell_check import spell_check
 from .bracket_dot import get_bracket_to_dot
 
 
-def convert_bracket_to_dot(parent_dir: str, lines: dict) -> NoReturn:
+def get_objective_c_fix_suggestions(parent_dir: str, lines: dict) -> dict:
+    issues = []
+
     if parent_dir is not None:
         target_dir = f'{parent_dir}/'
     else:
@@ -24,23 +26,32 @@ def convert_bracket_to_dot(parent_dir: str, lines: dict) -> NoReturn:
                   errors='ignore') as f:
             original_code = f.readlines()
 
-        num_replaced_lines = 0
-
         for i, line in enumerate(original_code):
             if i + 1 not in line_numbers:
                 continue
 
-            replaced_line = get_bracket_to_dot(line=line)
+            replaced_results = get_bracket_to_dot(line=line)
 
-            if replaced_line is None:
+            if replaced_results is None:
                 continue
 
-            original_code[i] = replaced_line
-            num_replaced_lines += 1
+            target_line = i + 1
+            original_code = replaced_results['src'].strip()
+            fixed_code = replaced_results['dst'].strip()
+            message = (
+                f'Legacy expression: \"{original_code}\" can be '
+                f'replaced by \"{fixed_code}\"')
 
-        if num_replaced_lines > 0:
-            with open(file=target_file_path, mode='w', encoding='utf-8') as f:
-                f.writelines(original_code)
+            issues.append({
+                'path': target_file,
+                'line': target_line,
+                'message': message,
+            })
+
+    print(
+        f'Objective-C legacy expression checker: Found {len(issues)} issues.')
+
+    return issues
 
 
 def get_objective_c_warnings_reports(project: str,
