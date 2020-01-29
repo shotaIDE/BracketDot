@@ -118,7 +118,7 @@ def swift():
         parent_dir=REPOSITORY_PATH, lines=target_lines)
     reports.extend(swift_lint_reports)
 
-    _output_reports(reports)
+    _output_reports(reports=reports, dir=REPOSITORY_PATH)
 
     is_spell_check_error = len(swift_spell_check_reports) > 0
     is_swift_lint_error = len(swift_lint_reports) > 0
@@ -172,9 +172,13 @@ def _get_repository_path() -> str:
     return os.environ.get('BRACKET_DOT_TARGET_DIR_FOR_DEBUG')
 
 
-def _output_reports(reports: list) -> NoReturn:
-    current_dir = os.getcwd()
-    OUTPUT_JSON_FILE = f'{current_dir}{os.sep}difflint_report.json'
+def _output_reports(reports: list, dir: str = None) -> NoReturn:
+    if dir is None:
+        parent_dir = os.getcwd()
+    else:
+        parent_dir = dir
+
+    OUTPUT_JSON_FILE = f'{parent_dir}{os.sep}difflint_report.json'
 
     with open(OUTPUT_JSON_FILE, mode='w', encoding='utf-8') as f:
         json.dump(reports, f, indent=4, ensure_ascii=False)
