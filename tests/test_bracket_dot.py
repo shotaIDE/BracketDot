@@ -47,7 +47,8 @@ def test_array_getter_call_with_variable():
 
 
 def test_array_getter_call_with_variable():
-    line = ' [testArray replaceObjectAtIndex:testIndex withObject:testString]; '
+    line = (' [testArray replaceObjectAtIndex:testIndex '
+            'withObject:testString]; ')
     result = get_bracket_to_dot(line=line)
     assert result == ' testArray[testIndex] = testString; '
 
