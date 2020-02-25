@@ -61,7 +61,7 @@ class GitDiff():
         RE_ADD_FILE_LINE = re.compile(r'^\+\+\+ b/(.*)$')
         BASE_NUMBER_LINE = re.compile(
             r'^@@ -[0-9]+(,[0-9]+)? \+([0-9]+)(,[0-9]+)? @@.*$')
-        CODE_LINE = re.compile(r'^\+(.*)$')
+        CODE_LINE = re.compile(r'^\+(?!\+\+ /dev/null)(.*)$')
 
         results = {}
 
