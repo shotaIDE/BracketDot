@@ -43,6 +43,11 @@ def spell_check(line: str, ignore_list: list = []) -> list:
             else:
                 fixed_word = fixed_word_lower
 
+            if fixed_word == word:
+                # The same word may be returned in the suggestion,
+                # in which case it is considered uncorrectable
+                continue
+
             fixed_list.append({
                 'src': word,
                 'dst': fixed_word,
