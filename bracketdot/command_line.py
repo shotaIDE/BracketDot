@@ -8,8 +8,8 @@ from typing import NoReturn
 
 from .android import get_android_lint_reports, get_android_spell_check_reports
 from .gitdiff import GitDiff
-from .ios import (convert_bracket_to_dot, get_ios_spell_check_reports,
-                  get_swift_lint_reports, get_objective_c_warnings_reports)
+from .ios import (get_ios_spell_check_reports, get_objective_c_fix_suggestions,
+                  get_objective_c_warnings_reports, get_swift_lint_reports)
 from .svndiff import SvnDiff
 
 
@@ -22,6 +22,8 @@ def bracket_dot():
     parser.add_argument('--all', action='store_true', default=False)
     arguments = parser.parse_args()
 
+    REPOSITORY_PATH = _get_repository_path()
+
     ALL_MODE = arguments.all
     IGNORE_WHITESPACE_LINES = arguments.ignore_whitespace
 
@@ -30,11 +32,20 @@ def bracket_dot():
     else:
         git_diff = GitDiff()
         target_lines = git_diff.get_diff_lines(
+            repository_path=REPOSITORY_PATH,
             last_commit=arguments.last,
             base_hash=arguments.base,
             ignore_whitespace_lines=IGNORE_WHITESPACE_LINES)
 
-    convert_bracket_to_dot(lines=target_lines)
+    reports = get_objective_c_fix_suggestions(
+        parent_dir=REPOSITORY_PATH,
+        lines=target_lines)
+
+    _output_reports(reports=reports, dir=REPOSITORY_PATH)
+
+    is_error = len(reports) > 0
+    exit_status = 1 if is_error else 0
+    return sys.exit(exit_status)
 
 
 def objc():
@@ -113,7 +124,7 @@ def swift():
         parent_dir=REPOSITORY_PATH, lines=target_lines)
     reports.extend(swift_lint_reports)
 
-    _output_reports(reports)
+    _output_reports(reports=reports, dir=REPOSITORY_PATH)
 
     is_spell_check_error = len(swift_spell_check_reports) > 0
     is_swift_lint_error = len(swift_lint_reports) > 0
@@ -167,9 +178,13 @@ def _get_repository_path() -> str:
     return os.environ.get('BRACKET_DOT_TARGET_DIR_FOR_DEBUG')
 
 
-def _output_reports(reports: list) -> NoReturn:
-    current_dir = os.getcwd()
-    OUTPUT_JSON_FILE = f'{current_dir}{os.sep}difflint_report.json'
+def _output_reports(reports: list, dir: str = None) -> NoReturn:
+    if dir is None:
+        parent_dir = os.getcwd()
+    else:
+        parent_dir = dir
+
+    OUTPUT_JSON_FILE = f'{parent_dir}{os.sep}difflint_report.json'
 
     with open(OUTPUT_JSON_FILE, mode='w', encoding='utf-8') as f:
         json.dump(reports, f, indent=4, ensure_ascii=False)
