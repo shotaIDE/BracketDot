@@ -1,5 +1,8 @@
 # BracketDot
 
+[![CircleCI](https://circleci.com/gh/shotaIDE/BracketDot.svg?style=shield)](https://circleci.com/gh/shotaIDE/BracketDot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## What is this ?
 
 A tool that runs lint focusing only on the latest changes in Git.

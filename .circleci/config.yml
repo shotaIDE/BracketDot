@@ -35,7 +35,4 @@ workflows:
 
   check:
     jobs:
-      - lint-and-test:
-          filters:
-            branches:
-              ignore: master
+      - lint-and-test
