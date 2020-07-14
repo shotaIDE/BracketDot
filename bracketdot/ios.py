@@ -25,7 +25,7 @@ def get_objective_c_fix_suggestions(parent_dir: str, lines: dict) -> dict:
         target_dir = ''
 
     for target_file, line_numbers in lines.items():
-        target_file_ext = os.path.splitext(target_file)
+        _, target_file_ext = os.path.splitext(target_file)
         if target_file_ext not in OBJECTIVE_C_FILE_EXTENSION_LIST:
             continue
 
